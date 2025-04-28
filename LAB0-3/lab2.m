@@ -1,12 +1,9 @@
-%% Modelowanie i identyfikacja - Laboratorium 2
-% Generacja liczb losowych metodą odrzucania
-
 clc; clear; close all;
 
-N = 1000; % Liczba generowanych próbek
+N = 100000; % Liczba generowanych próbek
+edges = 100;
 
-%% Zadanie 1: Generacja liczb z rozkładu o gęstości f(x)
-% Rozkład składa się z dwóch funkcji liniowych na przedziałach (-1,0] i (0,1].
+%% Zadanie 1: Histogram dla f(x)
 samples = zeros(N,1);
 for i = 1:N
     accept = false;
@@ -24,15 +21,28 @@ for i = 1:N
         end
     end
 end
+
 figure;
-histogram(samples, 50);
-title('Histogram dla f(x)'); xlabel('Wartości'); ylabel('Liczność');
+histogram(samples, edges, 'Normalization', 'pdf');
+hold on;
+
+% Teoretyczny rozkład
+x = linspace(-1, 1, 1000);
+y = arrayfun(@(x) (x + 1) .* (x <= 0) + (-x + 1) .* (x > 0), x);
+plot(x, y, 'r', 'LineWidth', 2);
+
+title('Rozkład f(x) = x+1 dla x \in (-1,0] oraz -x+1 dla x \in (0,1]');
+xlabel('Wartości');
+ylabel('Gęstość prawdopodobieństwa');
+legend('Histogram', 'Funkcja teoretyczna');
+grid on;
+saveas(gcf, 'Rozklad_Zadanie1.png');
 
 %% Zadanie 2: Wyznaczenie stałej c i implementacja generatora
-% Wyznaczanie c poprzez całkowanie funkcji gęstości do 1
 syms c
 c = solve(50 * (1/100) + c * (99/100) == 1, c);
 c = double(c);
+
 samples = zeros(N,1);
 for i = 1:N
     accept = false;
@@ -50,12 +60,16 @@ for i = 1:N
         end
     end
 end
+
 figure;
-histogram(samples, 50);
-title('Histogram dla zadania 2'); xlabel('Wartości'); ylabel('Liczność');
+histogram(samples, edges, 'Normalization', 'pdf');
+title('Histogram dla zadania 2');
+xlabel('Wartości');
+ylabel('Gęstość prawdopodobieństwa');
+grid on;
+saveas(gcf, 'Rozklad_Zadanie2.png');
 
 %% Zadanie 3: Generacja liczb z rozkładu półokręgu
-% Gęstość prawdopodobieństwa ma kształt półokręgu
 samples = zeros(N,1);
 for i = 1:N
     accept = false;
@@ -69,14 +83,28 @@ for i = 1:N
         end
     end
 end
+
 figure;
-histogram(samples, 50);
-title('Histogram dla półokręgu'); xlabel('Wartości'); ylabel('Liczność');
+histogram(samples, edges, 'Normalization', 'pdf');
+hold on;
+
+% Teoretyczny rozkład półokręgu
+x = linspace(-1, 1, 1000);
+y = (2/pi) * sqrt(1 - x.^2);  % Normalizacja przez (2/pi) dla pełnej gęstości prawdopodobieństwa
+
+plot(x, y, 'r', 'LineWidth', 2);
+
+title('Rozkład półokręgu');
+xlabel('Wartości');
+ylabel('Gęstość prawdopodobieństwa');
+legend('Histogram', 'Funkcja teoretyczna');
+grid on;
+saveas(gcf, 'Rozklad_Zadanie3.png');
 
 %% Zadanie 4: Generacja liczb z rozkładu normalnego metodą odrzucania
-% Generacja liczb z rozkładu normalnego N(0,1) wykorzystując metodę odrzucania
 lambda = 1; % Współczynnik rozkładu wykładniczego
 samples = zeros(N,1);
+
 for i = 1:N
     accept = false;
     while ~accept
@@ -92,19 +120,20 @@ for i = 1:N
         end
     end
 end
-figure;
-histogram(samples, 50);
-title('Histogram dla rozkładu normalnego'); xlabel('Wartości'); ylabel('Liczność');
 
-%% Zadanie 5: Podstawowe własności metody odrzucania
-% Analiza efektywności metody poprzez wyznaczenie współczynnika akceptacji
-accepted = 0;
-attempts = 0;
-for i = 1:N
-    attempts = attempts + 1;
-    if rand <= 0.5  % Przykładowy warunek akceptacji
-        accepted = accepted + 1;
-    end
-end
-acceptance_rate = accepted / attempts;
-disp(['Współczynnik akceptacji: ', num2str(acceptance_rate)]);
+figure;
+histogram(samples, edges, 'Normalization', 'pdf');
+hold on;
+
+% Teoretyczny rozkład normalny
+x = linspace(-4, 4, 1000);
+y = (1 / sqrt(2 * pi)) * exp(-0.5 * x.^2);
+plot(x, y, 'r', 'LineWidth', 2);
+
+title('Rozkład normalny N(0,1)');
+xlabel('Wartości');
+ylabel('Gęstość prawdopodobieństwa');
+legend('Histogram', 'Funkcja teoretyczna');
+grid on;
+saveas(gcf, 'Rozklad_Zadanie4.png');
+
